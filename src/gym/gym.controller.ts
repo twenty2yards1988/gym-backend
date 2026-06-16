@@ -1,18 +1,6 @@
 import { Body, Controller, Get, Param, Post } from '@nestjs/common';
-import { GymService } from './gym.service';
-
-interface Gym {
-  id: number;
-  name: string;
-  location: string;
-  trainer: string;
-}
-
-interface CreateGymDto {
-  name: string;
-  location: string;
-  trainer: string;
-}
+import { CreateGymDto } from './dto/create-gym.dto';
+import { Gym, GymService } from './gym.service';
 
 @Controller('gym')
 export class GymController {

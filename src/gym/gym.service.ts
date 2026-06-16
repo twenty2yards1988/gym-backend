@@ -1,13 +1,12 @@
 import { Injectable } from '@nestjs/common';
+import { CreateGymDto } from './dto/create-gym.dto';
 
-interface Gym {
+export interface Gym {
   id: number;
   name: string;
   location: string;
   trainer: string;
 }
-
-type CreateGymDto = Omit<Gym, 'id'>;
 
 @Injectable()
 export class GymService {
@@ -33,6 +32,24 @@ export class GymService {
     };
   }
 
+  getGymById(id: number): { message: string; data: Gym | null } {
+    console.log('Route parameter received:', id);
+
+    const gym = this.gyms.find((gymItem) => gymItem.id === id);
+
+    if (!gym) {
+      return {
+        message: 'Gym not found',
+        data: null,
+      };
+    }
+
+    return {
+      message: 'Gym fetched successfully',
+      data: gym,
+    };
+  }
+
   addGym(gymData: CreateGymDto): { message: string; data: Gym } {
     console.log('Request body received:', gymData);
 
@@ -48,17 +65,6 @@ export class GymService {
     return {
       message: 'Gym added successfully',
       data: newGym,
-    };
-  }
-
-  getGymById(id: number): { message: string; data: Gym | null } {
-    console.log('Route parameter received:', id);
-
-    const gym = this.gyms.find((gymItem) => gymItem.id === id);
-
-    return {
-      message: gym ? 'Gym fetched successfully' : 'Gym not found',
-      data: gym ?? null,
     };
   }
 }
