@@ -1,70 +1,53 @@
-import { Injectable } from '@nestjs/common';
-import { CreateGymDto } from './dto/create-gym.dto';
-
-export interface Gym {
-  id: number;
-  name: string;
-  location: string;
-  trainer: string;
-}
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model, Types, UpdateQuery } from 'mongoose';
+import { Gym, GymDocument } from './gym.schema';
 
 @Injectable()
 export class GymService {
-  private gyms: Gym[] = [
-    {
-      id: 1,
-      name: 'FitZone Gym',
-      location: 'Pune',
-      trainer: 'Rohit',
-    },
-    {
-      id: 2,
-      name: 'PowerHouse Gym',
-      location: 'Mumbai',
-      trainer: 'Amit',
-    },
-  ];
+  constructor(
+    @InjectModel(Gym.name)
+    private readonly gymModel: Model<GymDocument>,
+  ) {}
 
-  getAllGyms(): { message: string; data: Gym[] } {
-    return {
-      message: 'Gyms fetched successfully',
-      data: this.gyms,
-    };
+  async createGym(gymData: Partial<Gym>) {
+    const newGym = new this.gymModel(gymData);
+    return newGym.save();
   }
 
-  getGymById(id: number): { message: string; data: Gym | null } {
-    console.log('Route parameter received:', id);
+  async getAllGyms() {
+    return this.gymModel.find();
+  }
 
-    const gym = this.gyms.find((gymItem) => gymItem.id === id);
+  async updateGym(id: string, gymData: UpdateQuery<GymDocument>) {
+    if (!Types.ObjectId.isValid(id)) {
+      throw new NotFoundException('Invalid Gym ID');
+    }
 
-    if (!gym) {
-      return {
-        message: 'Gym not found',
-        data: null,
-      };
+    const updatedGym = await this.gymModel.findByIdAndUpdate(id, gymData, {
+      new: true,
+    });
+
+    if (!updatedGym) {
+      throw new NotFoundException('Gym not found');
+    }
+
+    return updatedGym;
+  }
+
+  async deleteGym(id: string) {
+    if (!Types.ObjectId.isValid(id)) {
+      throw new NotFoundException('Invalid Gym ID');
+    }
+
+    const deletedGym = await this.gymModel.findByIdAndDelete(id);
+
+    if (!deletedGym) {
+      throw new NotFoundException('Gym not found');
     }
 
     return {
-      message: 'Gym fetched successfully',
-      data: gym,
-    };
-  }
-
-  addGym(gymData: CreateGymDto): { message: string; data: Gym } {
-    console.log('Request body received:', gymData);
-
-    const newGym: Gym = {
-      id: this.gyms.length + 1,
-      name: gymData.name,
-      location: gymData.location,
-      trainer: gymData.trainer,
-    };
-
-    this.gyms.push(newGym);
-
-    return {
-      message: 'Gym added successfully',
-      data: newGym,
+      message: 'Gym deleted successfully',
     };
   }
 }

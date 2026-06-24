@@ -1,23 +1,35 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
-import { CreateGymDto } from './dto/create-gym.dto';
-import { Gym, GymService } from './gym.service';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Put,
+} from '@nestjs/common';
+import { GymService } from './gym.service';
 
 @Controller('gym')
 export class GymController {
   constructor(private readonly gymService: GymService) {}
 
+  @Post()
+  createGym(@Body() body: any) {
+    return this.gymService.createGym(body);
+  }
+
   @Get()
-  getAllGyms(): { message: string; data: Gym[] } {
+  getAllGyms() {
     return this.gymService.getAllGyms();
   }
 
-  @Get(':id')
-  getGymById(@Param('id') id: string): { message: string; data: Gym | null } {
-    return this.gymService.getGymById(Number(id));
+  @Put(':id')
+  updateGym(@Param('id') id: string, @Body() body: any) {
+    return this.gymService.updateGym(id, body);
   }
 
-  @Post()
-  addGym(@Body() gymData: CreateGymDto): { message: string; data: Gym } {
-    return this.gymService.addGym(gymData);
+  @Delete(':id')
+  deleteGym(@Param('id') id: string) {
+    return this.gymService.deleteGym(id);
   }
 }
