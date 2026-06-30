@@ -1,20 +1,33 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
+import { HydratedDocument } from 'mongoose';
 
-export type GymDocument = Gym & Document;
+export type GymDocument = HydratedDocument<Gym>;
 
-@Schema()
+@Schema({
+  timestamps: true,
+})
 export class Gym {
-  @Prop({ required: true })
+  @Prop({
+    required: true,
+  })
   name!: string;
 
-  @Prop({ required: true })
+  @Prop({
+    required: true,
+    index: true,
+  })
   location!: string;
 
-  @Prop({ required: true })
+  @Prop({
+    required: true,
+    index: true,
+  })
   trainer!: string;
 
-  @Prop({ required: true })
+  @Prop({
+    required: true,
+    index: true,
+  })
   fees!: number;
 }
 
